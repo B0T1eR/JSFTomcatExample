@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>jsfexample</display-name>
+
+	<!-- 设置默认的 JSF 页面扩展名为 .xhtml -->
+	<context-param>
+		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+		<param-value>.xhtml</param-value>
+	</context-param>
+
+	<servlet>
+		<servlet-name>faces</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<!-- 设置FacesServlet的拦截请求是*.do,所以访问Faces服务应该是访问index.do然后会被index.html(HelloWorldBean)来处理。而直接访问index.xhtml会返回页面内容本身,不会由JSF来处理 -->
+	<!-- 打漏洞时候遇到servlet-mapping映射*.do,JSF页面是.xhtml,应该访问*.do接口来触发反序列化漏洞。而直接访问index.xhtml会返回页面内容本身,不会由JSF来处理所以不会触发反序列化漏洞。 -->
+	<!-- 虽然访问xhtml没有任何JSF处理效果但是访问xhtml可以判断页面是否存在) -->
+	<servlet-mapping>
+		<servlet-name>faces</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+<!--		<welcome-file>index.xhtml</welcome-file>-->
+		<welcome-file>index.do</welcome-file>
+	</welcome-file-list>
+
+	<!--JSF2.2之后需要配置Java序列化数据需要配置Key来加密-->
+	<!--引入的组件版本不同配置方式也是不同的，关于Mojarra可以看https://stackoverflow.com/questions/28231372/com-sun-faces-clientstatesavingpassword-recommendations-for-actual-password-->
+	<context-param>
+		<param-name>comp.sun.faces.ClientSideSecretKey</param-name>
+		<param-value>r8Ipfj1pFXR7m6hGUgmHbQ==</param-value>
+	</context-param>
+	<context-param>
+		<param-name>comp.env.jsf.ClientSideSecretKey</param-name>
+		<param-value>r8Ipfj1pFXR7m6hGUgmHbQ==</param-value>
+	</context-param>
+	<env-entry>
+		<env-entry-name>jsf/ClientSideSecretKey</env-entry-name>
+		<env-entry-type>java.lang.String</env-entry-type>
+		<env-entry-value>r8Ipfj1pFXR7m6hGUgmHbQ==</env-entry-value> <!-- jsf-api:2.2.12;jsf-impl:2.2.12 配置中这样来配置ClientSideSecretKey才是正确的 -->
+	</env-entry>
+
+	<!--Mojarra需要开启javax.faces.STATE_SAVING_METHOD为Client才会进行Java反序列化-->
+	<context-param>
+		<description>State saving method: 'client' or 'server' (=default). See JSF Specification 2.5.2</description>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>client</param-value>
+	</context-param>
+</web-app>
