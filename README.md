@@ -55,14 +55,14 @@ JSF框架的反序列化需要开启ViewState配置：
 
 # 0x02 JSF反序列化利用
 
-faces的反序列化分为有加密和无加密俩种情况，遇到时候的JSF处理逻辑如下：其中看lib版本和配置决定走不走加解密
+faces的反序列化分为有加密和无加密俩种情况，JSF处理逻辑如下：具体是否使用AES加密需要看lib版本和配置。
 
 ```java
 Generate Payload: writeObject --> Gzip --> Encrpt --> Base64Encode
 Recive Payload: Base64Decode --> Decrpt --> UnGzip --> readObject
 ```
 
-存在加密的情况的话key可能会有以下的配置。具体怎么配置的key，根据引入的组件版本不同配置方式也是不同的，关于Mojarra框架的Key配置可以看https://stackoverflow.com/questions/28231372/com-sun-faces-clientstatesavingpassword-recommendations-for-actual-password
+存在加密的情况的话具体怎么配置AES的key，根据引入的组件版本不同，配置方式也是不同的，关于Mojarra框架的Key配置可以看：https://stackoverflow.com/questions/28231372/com-sun-faces-clientstatesavingpassword-recommendations-for-actual-password
 
 ```xml
   <env-entry> 
@@ -81,7 +81,7 @@ Recive Payload: Base64Decode --> Decrpt --> UnGzip --> readObject
 </context-param>
 ```
 
-获取加解密方式：加解密逻辑均在com.sun.faces.renderkit.ByteArrayGuard类的encrypt和decrypt中，需要时扣代码即可。在https://github.com/B0T1eR/ysoSimple工具中也集成了JSF框架的加解密方式。
+获取加解密方式：JSF有关加解密逻辑均在com.sun.faces.renderkit.ByteArrayGuard类的encrypt和decrypt中，需要时扣代码即可。在 https://github.com/B0T1eR/ysoSimple 工具中也集成了JSF框架的加解密方式。
 
 #  0x03 Reference
 
